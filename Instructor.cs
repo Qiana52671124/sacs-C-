@@ -6,7 +6,7 @@ using System.Text;
 
 namespace assignment3 Model common{
     
-    public class Instructor
+    public class Instructor : User
 {
     public string Instructor_Id { get; set; }
     public string Instructor_Name { get; set; }
