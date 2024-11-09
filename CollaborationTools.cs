@@ -5,26 +5,41 @@ using System.Linq;
 using System.Text;
 
 namespace assignment3 Model common{
-    public class CollaborationTools {
+    public class CollaborationTools
+{
 
-        public CollaborationTools() {
-        }
+    public List<string> Files { get; private set; }
+    public List<string> Messages { get; private set; }
 
-        public void file;
-
-        public void message;
-
-        public void share_resource() {
-            // TODO implement here
-        }
-
-        public void create_share_file() {
-            // TODO implement here
-        }
-
-        public void upload_share_file() {
-            // TODO implement here
-        }
-
+    public CollaborationTools()
+    {
+        Files = new List<string>();
+        Messages = new List<string>();
     }
+
+    public void share_resource(string resourceName)
+    {
+        Console.WriteLine($"Resource '{resourceName}' shared successfully!");
+    }
+
+    public void create_share_file()
+    {
+        Files.Add(fileName);
+        Console.WriteLine($"File '{fileName}' created and added to shared resources.");
+    }
+
+    public void upload_share_file(string fileName)
+    {
+        if (!Files.Contains(fileName))
+        {
+            Files.Add(fileName);
+            Console.WriteLine($"File '{fileName}' uploaded successfully!");
+        }
+        else
+        {
+            Console.WriteLine($"File '{fileName}' already exists in shared resources.");
+        }
+    }
+
+}
 }
