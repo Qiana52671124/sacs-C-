@@ -1,0 +1,152 @@
+using System;
+using System.Collections.Generic;
+
+namespace InstructorSubmissionSystem
+{
+    // Represents the Instructor who performs the grading
+    public class Instructor
+    {
+        public string InstructorID { get; set; }
+        public string Name { get; set; }
+
+        public Instructor(string id, string name)
+        {
+            InstructorID = id;
+            Name = name;
+        }
+
+        // Login method to authenticate instructor
+        public bool Login(string password)
+        {
+            // Sample password check
+            if (password == "securePassword")
+            {
+                Console.WriteLine($"{Name} logged in successfully.");
+                return true;
+            }
+            Console.WriteLine("Login failed.");
+            return false;
+        }
+    }
+
+    // Represents the Assignment submitted by students
+    public class Assignment
+    {
+        public string AssignmentID { get; set; }
+        public string Title { get; set; }
+        public string SubmissionContent { get; set; }
+        public string Grade { get; set; }
+        public List<string> Comments { get; set; }
+
+        public Assignment(string id, string title, string content)
+        {
+            AssignmentID = id;
+            Title = title;
+            SubmissionContent = content;
+            Comments = new List<string>();
+        }
+
+        // Add comments or annotations to the assignment
+        public void AddComment(string comment)
+        {
+            Comments.Add(comment);
+            Console.WriteLine($"Comment added: {comment}");
+        }
+
+        // Save grade for the assignment
+        public void SaveGrade(string grade)
+        {
+            Grade = grade;
+            Console.WriteLine($"Grade saved: {grade}");
+        }
+    }
+
+    // Represents the evaluation tools that the instructor uses to grade and comment
+    public class EvaluationTool
+    {
+        // Method to apply grade using tool
+        public void ApplyGrade(Assignment assignment, string grade)
+        {
+            assignment.SaveGrade(grade);
+        }
+
+        // Method to add comment on the assignment
+        public void AddAnnotation(Assignment assignment, string comment)
+        {
+            assignment.AddComment(comment);
+        }
+    }
+
+    // Main system class to manage submissions
+    public class SubmissionSystem
+    {
+        private List<Assignment> assignments = new List<Assignment>();
+        private Instructor instructor;
+        private EvaluationTool evaluationTool;
+
+        public SubmissionSystem(Instructor instructor)
+        {
+            this.instructor = instructor;
+            evaluationTool = new EvaluationTool();
+            InitializeAssignments();  // Initial setup
+        }
+
+        // Initial setup of assignments for testing purposes
+        private void InitializeAssignments()
+        {
+            assignments.Add(new Assignment("A001", "Math Assignment", "Math homework content"));
+            assignments.Add(new Assignment("A002", "Science Assignment", "Science homework content"));
+        }
+
+        // Retrieve assignment by ID
+        public Assignment GetAssignmentById(string id)
+        {
+            return assignments.Find(a => a.AssignmentID == id);
+        }
+
+        // Save evaluation (for demo purposes, simply saves state)
+        public void SaveEvaluation(Assignment assignment, string grade, string comment)
+        {
+            evaluationTool.ApplyGrade(assignment, grade);
+            evaluationTool.AddAnnotation(assignment, comment);
+            Console.WriteLine("Evaluation saved successfully.");
+        }
+
+        // Submit feedback after grading
+        public void SubmitFeedback(Assignment assignment)
+        {
+            if (string.IsNullOrEmpty(assignment.Grade))
+            {
+                Console.WriteLine("Cannot submit feedback: grade is missing.");
+                return;
+            }
+            Console.WriteLine("Feedback submitted successfully.");
+        }
+
+        // Example usage workflow
+        public void InstructorWorkflow()
+        {
+            if (instructor.Login("securePassword"))
+            {
+                Assignment assignment = GetAssignmentById("A001");
+                if (assignment != null)
+                {
+                    Console.WriteLine($"Reviewing assignment: {assignment.Title}");
+                    SaveEvaluation(assignment, "A", "Well done!");
+                    SubmitFeedback(assignment);
+                }
+            }
+        }
+    }
+
+    // Main Program
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Instructor instructor = new Instructor("I001", "John Doe");
+            SubmissionSystem system = new SubmissionSystem(instructor);
+            system.InstructorWorkflow();
+        }
+    }
+}
