@@ -1,0 +1,155 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SystemAnalytics
+{
+    // AnalyticsService handles analytics data retrieval and pattern detection
+    public class AnalyticsService
+    {
+        public List<UsageData> UsageDataList { get; set; }
+
+        public AnalyticsService()
+        {
+            UsageDataList = new List<UsageData>();
+        }
+
+        // Method to get analytics data based on time filters
+        public List<UsageData> GetAnalyticsData(DateTime startDate, DateTime endDate)
+        {
+            return UsageDataList.Where(data => data.Date >= startDate && data.Date <= endDate).ToList();
+        }
+
+        // Method to detect usage trends
+        public string DetectTrends()
+        {
+            if (!UsageDataList.Any())
+                return "No data available";
+
+            // Example: Calculate average usage
+            double averageUsage = UsageDataList.Average(data => data.UsageCount);
+            return $"Average usage trend: {averageUsage} interactions/day";
+        }
+    }
+
+    // UsageData holds individual usage data records
+    public class UsageData
+    {
+        public DateTime Date { get; set; }
+        public int UsageCount { get; set; }
+
+        public UsageData(DateTime date, int usageCount)
+        {
+            Date = date;
+            UsageCount = usageCount;
+        }
+    }
+
+    // Recommendation is created based on analytics trends
+    public class Recommendation
+    {
+        public string Content { get; set; }
+        public string Status { get; set; }
+        public DateTime DateCreated { get; set; }
+
+        public Recommendation(string content)
+        {
+            Content = content;
+            Status = "Pending";
+            DateCreated = DateTime.Now;
+        }
+    }
+
+    // SystemAdministrator handles actions related to reviewing and recommending improvements
+    public class SystemAdministrator
+    {
+        private readonly AnalyticsService _analyticsService;
+        public List<Recommendation> Recommendations { get; set; }
+
+        public SystemAdministrator(AnalyticsService analyticsService)
+        {
+            _analyticsService = analyticsService;
+            Recommendations = new List<Recommendation>();
+        }
+
+        // View analytics data for specified date range
+        public void ViewAnalyticsData(DateTime startDate, DateTime endDate)
+        {
+            var data = _analyticsService.GetAnalyticsData(startDate, endDate);
+
+            if (!data.Any())
+            {
+                Console.WriteLine("No data available for the specified range.");
+            }
+            else
+            {
+                Console.WriteLine("Usage Data:");
+                foreach (var entry in data)
+                {
+                    Console.WriteLine($"{entry.Date.ToShortDateString()}: {entry.UsageCount} interactions");
+                }
+            }
+        }
+
+        // View detected trends from analytics service
+        public void ViewDetectedTrends()
+        {
+            Console.WriteLine(_analyticsService.DetectTrends());
+        }
+
+        // Submit a recommendation based on analytics
+        public void SubmitRecommendation(string content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                Console.WriteLine("Recommendation content cannot be empty.");
+                return;
+            }
+
+            var recommendation = new Recommendation(content);
+            Recommendations.Add(recommendation);
+            Console.WriteLine("Recommendation submitted successfully. Status: Pending");
+        }
+
+        // Review and update status of recommendations
+        public void ReviewRecommendations()
+        {
+            Console.WriteLine("Current Recommendations:");
+            foreach (var recommendation in Recommendations)
+            {
+                Console.WriteLine($"- {recommendation.Content} | Status: {recommendation.Status}");
+            }
+        }
+    }
+
+    // Program execution example
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Example: Initialize analytics service with some data
+            AnalyticsService analyticsService = new AnalyticsService();
+            analyticsService.UsageDataList.Add(new UsageData(DateTime.Today.AddDays(-1), 30));
+            analyticsService.UsageDataList.Add(new UsageData(DateTime.Today.AddDays(-2), 25));
+            analyticsService.UsageDataList.Add(new UsageData(DateTime.Today, 40));
+
+            SystemAdministrator admin = new SystemAdministrator(analyticsService);
+
+            // View analytics data
+            Console.WriteLine("Viewing Analytics Data:");
+            admin.ViewAnalyticsData(DateTime.Today.AddDays(-3), DateTime.Today);
+
+            // View detected trends
+            Console.WriteLine("\nDetected Trends:");
+            admin.ViewDetectedTrends();
+
+            // Submit a recommendation
+            Console.WriteLine("\nSubmitting Recommendation:");
+            admin.SubmitRecommendation("Increase system capacity based on rising usage trends.");
+
+            // Review recommendations
+            Console.WriteLine("\nReviewing Recommendations:");
+            admin.ReviewRecommendations();
+        }
+    }
+}
