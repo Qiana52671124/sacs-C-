@@ -1,0 +1,146 @@
+using System;
+using System.Collections.Generic;
+using System.Net.Mail;
+
+namespace NotificationSystem
+{
+    // Notification Event Types
+    public enum EventType
+    {
+        AssignmentDeadline,
+        FeedbackSubmission
+    }
+
+    // Event class to represent an important event
+    public class Event
+    {
+        public int EventId { get; set; }
+        public EventType Type { get; set; }
+        public DateTime OccurrenceTime { get; set; }
+        
+        public Event(int eventId, EventType type, DateTime occurrenceTime)
+        {
+            EventId = eventId;
+            Type = type;
+            OccurrenceTime = occurrenceTime;
+        }
+    }
+
+    // User class to represent users who will receive notifications
+    public class User
+    {
+        public int UserId { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+
+        public User(int userId, string name, string email)
+        {
+            UserId = userId;
+            Name = name;
+            Email = email;
+        }
+    }
+
+    // Notification class that contains notification details
+    public class Notification
+    {
+        public int NotificationId { get; set; }
+        public string Message { get; set; }
+        public User Recipient { get; set; }
+        public bool IsSent { get; set; }
+
+        public Notification(int notificationId, string message, User recipient)
+        {
+            NotificationId = notificationId;
+            Message = message;
+            Recipient = recipient;
+            IsSent = false;
+        }
+
+        public void MarkAsSent()
+        {
+            IsSent = true;
+        }
+    }
+
+    // NotificationService class to handle detection, generation, and sending notifications
+    public class NotificationService
+    {
+        private readonly List<User> _users;
+
+        public NotificationService(List<User> users)
+        {
+            _users = users;
+        }
+
+        // Detects events and triggers notification generation
+        public void DetectEvent(Event newEvent)
+        {
+            string message = GenerateNotificationMessage(newEvent);
+            foreach (var user in _users)
+            {
+                SendNotification(new Notification(newEvent.EventId, message, user));
+            }
+        }
+
+        // Generates the notification message based on event type
+        private string GenerateNotificationMessage(Event eventInfo)
+        {
+            return eventInfo.Type switch
+            {
+                EventType.AssignmentDeadline => "Reminder: Assignment deadline is approaching!",
+                EventType.FeedbackSubmission => "New feedback has been submitted for your review.",
+                _ => "Unknown event detected."
+            };
+        }
+
+        // Sends an email notification to the user
+        private void SendNotification(Notification notification)
+        {
+            try
+            {
+                using (MailMessage mail = new MailMessage("noreply@system.com", notification.Recipient.Email))
+                {
+                    mail.Subject = "System Notification";
+                    mail.Body = notification.Message;
+                    
+                    using (SmtpClient client = new SmtpClient("smtp.server.com"))
+                    {
+                        client.Send(mail);
+                        notification.MarkAsSent();
+                        Console.WriteLine($"Notification sent to {notification.Recipient.Name}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send notification to {notification.Recipient.Name}: {ex.Message}");
+            }
+        }
+    }
+
+    // Example usage
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Sample users
+            List<User> users = new List<User>
+            {
+                new User(1, "John Doe", "john@example.com"),
+                new User(2, "Jane Smith", "jane@example.com")
+            };
+
+            // Notification service
+            NotificationService notificationService = new NotificationService(users);
+
+            // Detect a new event (e.g., assignment deadline)
+            Event assignmentDeadline = new Event(101, EventType.AssignmentDeadline, DateTime.Now.AddDays(1));
+            notificationService.DetectEvent(assignmentDeadline);
+
+            // Detect a feedback submission event
+            Event feedbackSubmission = new Event(102, EventType.FeedbackSubmission, DateTime.Now);
+            notificationService.DetectEvent(feedbackSubmission);
+        }
+    }
+}
