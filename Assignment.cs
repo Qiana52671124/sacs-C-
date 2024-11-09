@@ -16,20 +16,20 @@ namespace assignment3 Model common{
 
     public String description { get; set; };
 
-    public DataTime due date{ get; set; };
+    public DataTime dueDate { get; set; };
 
-public string relavent_files { get; set; };
+    public string relavent_files { get; set; };
 
 
-public void Unit;
-public Assignment(string title, string description, DateTime dueDate, List<string> files, string unit)
-{
-    Title = title;
-    Description = description;
-    DueDate = dueDate;
-    RelevantFiles = files;
-    Unit = unit;
-}
+    public void Unit;
+    public Assignment(string title, string description, DateTime dueDate, List<string> files, string unit)
+    {
+        Title = title;
+        Description = description;
+        DueDate = dueDate;
+        RelevantFiles = files;
+        Unit = unit;
+    }
 
 }
 }
